@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Client</title>
+  <style>
+    #messages {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    #messageInput {
+      width: 80%;
+      padding: 10px;
+    }
+    button {
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>WebSocket Client</h1>
+  <div id="messages"></div>
+  <input type="text" id="messageInput" placeholder="Type a message...">
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    // const ws = new WebSocket('https://nd.infinityworldtechnology.exchange/');
+    const ws = new WebSocket('http://127.0.0.1:8080/echo');
+    // const ws = new WebSocket('wss://fstream.binance.com/stream?streams=btcusdt@markPrice');
+
+    ws.onopen = () => {
+      console.log('Connected to WebSocket server');
+    };
+    ws.onmessage = (event) => {
+        console.log(event);
+      if (event.data instanceof Blob) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const messagesDiv = document.getElementById('messages');
+          const message = document.createElement('div');
+          message.textContent = reader.result;
+          messagesDiv.appendChild(message);
+        };
+        reader.readAsText(event.data);
+      } else {
+        const messagesDiv = document.getElementById('messages');
+        const message = document.createElement('div');
+        message.textContent = event.data;
+        messagesDiv.appendChild(message);
+      }
+    };
+    // ws.onmessage(function(scc){
+    //     console.log(scc);
+    // });
+
+    // ws.onmessage = (event) => {
+    //     // console.log(event.currentTarget.onmessage);
+    //     const messagesDiv = document.getElementById('messages');
+    //     const message = document.createElement('div');
+    //     message.textContent = event.data;
+    //     messagesDiv.appendChild(message);
+    // };
+
+    ws.onclose = () => {
+      console.log('Disconnected from WebSocket server');
+    };
+
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value;
+      // const mss =     {
+      //         trade : {
+      //             amount : 2,
+      //             base : "BTC",
+      //             buysell : "buy",
+      //             created_at : "2024-08-06T04:40:27.000000Z",
+      //             id : 57,
+      //             pair : "btcusdt",
+      //             price : 12,
+      //             quote : "USDT",
+      //             spottype : "limit",
+      //             status : 0,
+      //             updated_at : "2024-08-06T04:40:27.000000Z",
+      //             user_id : 1
+      //       }
+      //     }
+      // ws.send(JSON.stringify(mss));
+      ws.send(message);
+        input.value = '';
+      }
+  </script>
+</body>
+</html>
